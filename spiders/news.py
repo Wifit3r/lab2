@@ -15,8 +15,9 @@ class NewsSpider(scrapy.Spider):
         for item in items:
             print(count)
             count += 1
-            Title = item.find('h4').text
+            title = item.find('h4').text
             url = item.find('a')['href']
             date = item.find('span').text
             img_url = item.find('img')['src']
-            yield NewsItem(Title=Title, url=url, date=date, img_url=img_url)
+            img_name = "img+{date}"
+            yield NewsItem(title=title, url=url, date=date, img_url=img_url, img_name=img_name)

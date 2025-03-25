@@ -53,6 +53,11 @@ ROBOTSTXT_OBEY = True
 #DOWNLOADER_MIDDLEWARES = {
 #    "lab2.middlewares.Lab2DownloaderMiddleware": 543,
 #}
+ITEM_PIPELINES = {
+    'lab2.pipelines.ImagePipeline': 2,
+    'lab2.pipelines.DBPipeline': 1,
+}
+
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
