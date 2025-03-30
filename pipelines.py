@@ -25,32 +25,29 @@ class ImagePipeline:
                 spider.logger.error(f"Не вдалося завантажити фото: {img_url}")
         return item
     
-import sqlite3
-
-import sqlite3
-import requests
 
 class DBPipeline:
-    def open_connect(self, spider):
+    def open_spider(self, spider):
         try:
             self.conn = sqlite3.connect('news.db')
             self.cursor = self.conn.cursor()
+            spider.logger.info(" Відкрито з'єднання з БД")
+        
             self.cursor.execute(
                 '''CREATE TABLE IF NOT EXISTS news 
                 (title TEXT, url TEXT, date TEXT, img_url TEXT, img_name TEXT, image BLOB)'''
-            )
+                )
             self.conn.commit()
+            spider.logger.info(" Таблиця 'news' перевірена/створена")
         except Exception as e:
-            print(f"Error opening database connection: {e}")
+            spider.logger.error(f" Помилка відкриття БД: {e}")
 
-    def close_connect(self, spider):
-        if self.conn:
-            self.conn.close()
+    
 
     def process_item(self, item, spider):
         try:
             img_data = None
-            if item['img_url']:
+            if 'img_url' in item and item['img_url']:  
                 response = requests.get(item['img_url'])
                 if response.status_code == 200:
                     img_data = response.content
@@ -58,9 +55,12 @@ class DBPipeline:
             self.cursor.execute(
                 '''INSERT INTO news (title, url, date, img_url, img_name, image) 
                 VALUES (?, ?, ?, ?, ?, ?)''', 
-                (item['title'], item['url'], item['date'], item['img_url'], item.get('img_name', None), img_data)
+                (item['title'], item['url'], item['date'], item.get('img_url', None), item.get('img_name', None), img_data)
             )
             self.conn.commit()
         except Exception as e:
-            print(f"Error inserting data into database: {e}")
+            spider.logger.error(f"Error inserting data into database: {e}")
         return item
+    def close_spider(self, spider):
+        if self.conn:
+            self.conn.close()
